@@ -1,5 +1,0 @@
-# Placeholder for services
-# This directory will contain business logic services:
-# - chatbot.service.ts (main orchestration)
-# - llm.service.ts (OpenAI integration)
-# - tools/ subdirectory for tool implementations

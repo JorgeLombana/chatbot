@@ -4,8 +4,6 @@ import { HttpModule } from '@nestjs/axios';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import configuration, { validate } from './shared/config/configuration';
 import {
@@ -48,9 +46,8 @@ import {
     ]),
     ChatbotModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

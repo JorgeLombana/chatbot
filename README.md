@@ -1,26 +1,3 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 # AI-Powered Chatbot API
 
 An intelligent e-commerce chatbot built with NestJS and OpenAI, featuring product search and currency conversion capabilities through function calling.
@@ -55,23 +32,13 @@ An intelligent e-commerce chatbot built with NestJS and OpenAI, featuring produc
 
 ## 🔧 Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/JorgeLombana/chatbot
-   cd chatbot
-   ```
-
-2. **Install dependencies**
+1. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Environment setup**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Configure your `.env` file with the required API keys:
+2. **Environment setup**
+   Create a `.env` file in the root directory with the required API keys:
    ```env
    # OpenAI Configuration
    OPENAI_API_KEY=sk-your-openai-api-key-here
@@ -84,8 +51,8 @@ An intelligent e-commerce chatbot built with NestJS and OpenAI, featuring produc
    PORT=3000
    ```
 
-4. **Add product data**
-   - Place your `Full Stack Test products_list.csv` file in the `data/` directory
+3. **Add product data**
+   - Ensure your `Full Stack Test products_list.csv` file is in the `data/` directory
    - The CSV should contain product information for the search functionality
 
 ## 🚀 Running the Application
@@ -112,7 +79,7 @@ Access the interactive Swagger documentation at:
 
 #### Chat with AI Assistant
 ```
-POST /chatbot/chat
+POST /api/chatbot/chat
 ```
 
 **Request Body:**
@@ -137,12 +104,12 @@ POST /chatbot/chat
 
 #### Health Check
 ```
-GET /chatbot/health
+GET /api/chatbot/health
 ```
 
 ## 🧪 Testing the Chatbot
 
-Try these example queries:
+Try these example queries (exactly as specified in the technical assessment):
 
 1. **Product Search**:
    - "I am looking for a phone"
@@ -153,17 +120,11 @@ Try these example queries:
    - "What is the price of the watch in Euros?"
    - "How many Canadian Dollars are 350 Euros?"
 
-3. **Mixed Queries**:
-   - "Show me laptops under $1000 and convert the price to EUR"
-
 ## 🔨 Development
 
 ```bash
-# Run tests
+# Run unit tests
 npm run test
-
-# End-to-end tests
-npm run test:e2e
 
 # Test coverage
 npm run test:cov
@@ -212,7 +173,7 @@ src/
 ## 📊 Monitoring & Logging
 
 - **Health Checks**: Service availability monitoring
-- **Structured Logging**: Request/response logging with Winston
+- **Structured Logging**: Request/response logging with NestJS Logger
 - **Error Tracking**: Comprehensive error handling and reporting
 - **Performance Metrics**: Execution time tracking
 
