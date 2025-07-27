@@ -5,6 +5,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ChatbotModule } from './chatbot/chatbot.module';
 import configuration, { validate } from './shared/config/configuration';
 import {
   HttpExceptionFilter,
@@ -40,6 +41,7 @@ import {
         limit: 100,
       },
     ]),
+    ChatbotModule,
   ],
   controllers: [AppController],
   providers: [

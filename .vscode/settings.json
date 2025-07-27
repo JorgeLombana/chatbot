@@ -1,11 +1,4 @@
 {
-  "material-icon-theme.folders.associations": {
-    "controllers": "nest-controller",
-    "services": "nest-service",
-    "modules": "nest-module",
-    "guards": "security",
-    "interceptors": "tools"
-  },
   "material-icon-theme.files.associations": {
     "*.controller.ts": "nest-controller",
     "*.service.ts": "nest-service",
