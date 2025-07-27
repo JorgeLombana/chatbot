@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -23,6 +24,10 @@ import {
       load: [configuration],
       validate,
       envFilePath: '.env',
+    }),
+    HttpModule.register({
+      timeout: 10000,
+      maxRedirects: 3,
     }),
     ThrottlerModule.forRoot([
       {
