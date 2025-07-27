@@ -1,19 +1,13 @@
 import {
   Controller,
   Post,
-  Body,
   Get,
+  Body,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBody,
-  ApiExtraModels,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { LLMService } from '../services/llm.service';
 import { ChatRequestDto, ChatResponseDto } from '../dto';
 import { LLMChatRequest } from '../interfaces';
@@ -24,7 +18,6 @@ import { LLMChatRequest } from '../interfaces';
  */
 @ApiTags('Chatbot')
 @Controller('chatbot')
-@ApiExtraModels(ChatRequestDto, ChatResponseDto)
 export class ChatbotController {
   private readonly logger = new Logger(ChatbotController.name);
 
@@ -138,16 +131,9 @@ The system implements a 4-step pipeline:
   async chat(@Body() chatRequest: ChatRequestDto): Promise<ChatResponseDto> {
     const startTime = Date.now();
 
-    // 🎯 LOG: User input received
-    console.log('\n🚀 CHATBOT REQUEST STARTED');
-    console.log('📝 User Query:', chatRequest.query);
-    console.log('⏰ Start Time:', new Date().toISOString());
-
     try {
       // Validate request
       if (!chatRequest.query?.trim()) {
-        console.log('❌ Validation failed: Empty query');
-        this.logger.warn('Empty query received in chat request');
         throw new HttpException(
           'Query is required and cannot be empty',
           HttpStatus.BAD_REQUEST,
@@ -165,16 +151,9 @@ The system implements a 4-step pipeline:
         messages: chatRequest.messages || [],
       };
 
-      // 🧠 LOG: Processing with LLM
-      console.log('🧠 Processing with OpenAI LLM service...');
-
       // Process with LLM service
       const llmResponse = await this.llmService.chat(llmRequest);
       const executionTime = Date.now() - startTime;
-
-      // 🔧 LOG: Processing completed
-      console.log('🔧 Tool used:', llmResponse.toolUsed || 'none');
-      console.log('⏱️  Processing time:', executionTime + 'ms');
 
       this.logger.log(
         `Chat request completed in ${executionTime}ms, tool used: ${llmResponse.toolUsed || 'none'}`,
@@ -188,45 +167,16 @@ The system implements a 4-step pipeline:
         executionTimeMs: executionTime,
       };
 
-      // ✅ LOG: Final response ready
-      console.log('✅ CHATBOT RESPONSE READY');
-      console.log(
-        '📤 Response preview:',
-        response.response.substring(0, 100) + '...',
-      );
-      console.log('🏁 End Time:', new Date().toISOString());
-      console.log('=====================================\n');
-
-      // Return formatted response
       return response;
     } catch (error) {
       const executionTime = Date.now() - startTime;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
 
-      // ❌ LOG: Error occurred
-      console.log('❌ CHATBOT ERROR');
-      console.log('💥 Error:', errorMessage);
-      console.log('⏱️  Failed after:', executionTime + 'ms');
-      console.log('=====================================\n');
-
-      // Log error with context
       this.logger.error(
-        `Chat request failed after ${executionTime}ms: ${errorMessage}`,
-        {
-          query: chatRequest.query?.substring(0, 100),
-          conversationId: chatRequest.conversationId,
-          error: errorMessage,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
+        `Chat request failed: ${errorMessage} (${executionTime}ms)`,
       );
 
-      // Return user-friendly error for HTTP exceptions
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      // Handle unexpected errors
       throw new HttpException(
         `Failed to process chat request: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -235,8 +185,7 @@ The system implements a 4-step pipeline:
   }
 
   /**
-   * Health check endpoint for chatbot service
-   * Verifies LLM service availability and overall system health
+   * Health check endpoint
    */
   @Get('health')
   @ApiOperation({
@@ -336,13 +285,6 @@ This endpoint is useful for:
       }
     } catch (error) {
       const checkTime = Date.now() - startTime;
-
-      // If it's already an HttpException (from the LLM unavailable case above), re-throw it
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      // Handle unexpected errors (like network issues, configuration problems, etc.)
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
 
@@ -372,138 +314,5 @@ This endpoint is useful for:
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
-  }
-
-  /**
-   * Get available tools and their capabilities
-   * Returns information about the tools the chatbot can use
-   */
-  @Get('tools')
-  @ApiOperation({
-    summary: 'Get available chatbot tools',
-    description: `
-Retrieve information about available tools and their capabilities.
-
-**Available Tools:**
-- **searchProducts**: Search product catalog and return exactly 2 relevant items
-- **convertCurrencies**: Convert amounts between currencies with real-time rates
-
-This endpoint is useful for:
-- Understanding chatbot capabilities
-- API documentation and integration
-- Debugging tool availability
-    `,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of available tools',
-    schema: {
-      example: {
-        tools: [
-          {
-            name: 'searchProducts',
-            description:
-              'Search for products based on user criteria. Returns exactly 2 relevant products.',
-            parameters: {
-              query: 'Search term for product name or description',
-              productType: 'Product category or type to filter by',
-              minPrice: 'Minimum price filter',
-              maxPrice: 'Maximum price filter',
-              hasDiscount: 'Filter for products with discounts/sales',
-            },
-            examples: [
-              'I am looking for a phone',
-              'I need a present for my dad',
-              'Show me some watches',
-            ],
-          },
-          {
-            name: 'convertCurrencies',
-            description:
-              'Convert amount between different currencies using real-time exchange rates',
-            parameters: {
-              amount: 'Amount to convert (required)',
-              fromCurrency:
-                'Source currency code (3 letters, e.g., USD) (required)',
-              toCurrency:
-                'Target currency code (3 letters, e.g., EUR) (required)',
-            },
-            examples: [
-              'How many Canadian Dollars are 350 Euros?',
-              'Convert 100 USD to EUR',
-              'What is 50 GBP in Japanese Yen?',
-            ],
-          },
-        ],
-        totalTools: 2,
-        timestamp: '2025-01-27T10:30:00.000Z',
-      },
-    },
-  })
-  getAvailableTools() {
-    try {
-      this.logger.log('Retrieving available tools information');
-
-      const tools = this.llmService.getAvailableTools();
-
-      const toolsInfo = tools.map((tool) => ({
-        name: tool.function.name,
-        description: tool.function.description,
-        parameters: Object.entries(
-          tool.function.parameters.properties || {},
-        ).reduce(
-          (acc, [key, value]) => {
-            acc[key] =
-              (value as { description?: string }).description ||
-              'No description available';
-            return acc;
-          },
-          {} as Record<string, string>,
-        ),
-        requiredParameters: tool.function.parameters.required || [],
-        examples: this.getToolExamples(tool.function.name),
-      }));
-
-      return {
-        tools: toolsInfo,
-        totalTools: tools.length,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        `Failed to retrieve tools information: ${errorMessage}`,
-      );
-
-      throw new HttpException(
-        'Failed to retrieve tools information',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  /**
-   * Get example queries for each tool
-   */
-  private getToolExamples(toolName: string): string[] {
-    const examples: Record<string, string[]> = {
-      searchProducts: [
-        'I am looking for a phone',
-        'I need a present for my dad',
-        'Show me some watches',
-        'Find me electronics under $500',
-        'What technology products do you have?',
-      ],
-      convertCurrencies: [
-        'How many Canadian Dollars are 350 Euros?',
-        'Convert 100 USD to EUR',
-        'What is 50 GBP in Japanese Yen?',
-        'How much is 1000 JPY in US Dollars?',
-        'Convert 250 EUR to British Pounds',
-      ],
-    };
-
-    return examples[toolName] || [];
   }
 }
