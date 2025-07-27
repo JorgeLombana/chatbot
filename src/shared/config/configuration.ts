@@ -1,9 +1,15 @@
+/**
+ * Application environment types
+ */
 export enum NodeEnvironment {
   DEVELOPMENT = 'development',
   PRODUCTION = 'production',
   TEST = 'test',
 }
 
+/**
+ * Application configuration interface
+ */
 export interface AppConfig {
   nodeEnv: NodeEnvironment;
   port: number;
@@ -24,10 +30,15 @@ export interface AppConfig {
   };
 }
 
+/**
+ * Validates and returns application configuration
+ * @throws {Error} When required environment variables are missing or invalid
+ * @returns {AppConfig} Validated configuration object
+ */
 export function validateConfig(): AppConfig {
   const requiredEnvVars = ['OPENAI_API_KEY', 'EXCHANGE_RATES_API_KEY'];
   const missingVars = requiredEnvVars.filter(
-    (varName) => !process.env[varName],
+    (varName) => !process.env[varName] || process.env[varName]?.trim() === '',
   );
 
   if (missingVars.length > 0) {
@@ -38,8 +49,8 @@ export function validateConfig(): AppConfig {
   }
 
   const port = parseInt(process.env.PORT || '3000', 10);
-  if (isNaN(port) || port <= 0) {
-    throw new Error('PORT must be a valid positive number');
+  if (isNaN(port) || port <= 0 || port > 65535) {
+    throw new Error('PORT must be a valid port number between 1 and 65535');
   }
 
   const maxRequestsPerMinute = parseInt(
@@ -65,15 +76,27 @@ export function validateConfig(): AppConfig {
     );
   }
 
+  const openaiApiKey = process.env.OPENAI_API_KEY!;
+  if (!openaiApiKey.startsWith('sk-')) {
+    throw new Error(
+      'OPENAI_API_KEY must be a valid OpenAI API key starting with "sk-"',
+    );
+  }
+
+  const exchangeRatesApiKey = process.env.EXCHANGE_RATES_API_KEY!;
+  if (exchangeRatesApiKey.length < 16) {
+    throw new Error('EXCHANGE_RATES_API_KEY appears to be invalid (too short)');
+  }
+
   return {
     nodeEnv,
     port,
     openai: {
-      apiKey: process.env.OPENAI_API_KEY!,
+      apiKey: openaiApiKey,
       maxRequestsPerMinute,
     },
     exchangeRates: {
-      apiKey: process.env.EXCHANGE_RATES_API_KEY!,
+      apiKey: exchangeRatesApiKey,
       cacheTtl,
     },
     api: {
@@ -85,5 +108,24 @@ export function validateConfig(): AppConfig {
     },
   };
 }
+
+/**
+ * NestJS ConfigModule validation function
+ * @param config - Configuration object to validate
+ * @returns {Record<string, unknown>} Validated configuration
+ * @throws {Error} When required configuration keys are missing
+ */
+export const validate = (config: Record<string, unknown>) => {
+  const requiredKeys = ['OPENAI_API_KEY', 'EXCHANGE_RATES_API_KEY'];
+  const missingKeys = requiredKeys.filter((key) => !config[key]);
+
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `Configuration validation failed: missing ${missingKeys.join(', ')}`,
+    );
+  }
+
+  return config;
+};
 
 export default () => validateConfig();
