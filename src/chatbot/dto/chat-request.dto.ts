@@ -1,9 +1,17 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsArray,
+} from 'class-validator';
+import { ChatMessage } from '../interfaces';
 
 /**
  * Request DTO for chatbot interactions
- * Represents the user's query to the chatbot
+ * Represents the user's query to the chatbot with optional conversation context
  */
 export class ChatRequestDto {
   @ApiProperty({
@@ -17,4 +25,22 @@ export class ChatRequestDto {
   @MinLength(1, { message: 'Query cannot be empty' })
   @MaxLength(1000, { message: 'Query is too long (max 1000 characters)' })
   query!: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Optional conversation ID to continue an existing conversation',
+    example: 'chat-1642584723456-abc123',
+  })
+  @IsOptional()
+  @IsString()
+  conversationId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Previous messages in the conversation for context',
+    example: [],
+    type: [Object],
+  })
+  @IsOptional()
+  @IsArray()
+  messages?: ChatMessage[];
 }
