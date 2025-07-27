@@ -37,6 +37,13 @@ export class ChatResponseDto {
   finishReason?: string;
 
   @ApiProperty({
+    description: 'Request execution time in milliseconds',
+    example: 1250,
+    required: false,
+  })
+  executionTimeMs?: number;
+
+  @ApiProperty({
     description: 'Token usage information from OpenAI',
     example: {
       promptTokens: 150,
@@ -54,6 +61,7 @@ export class ChatResponseDto {
   @ApiProperty({
     description: 'ISO timestamp of when the response was generated',
     example: '2025-01-26T22:15:30.123Z',
+    required: false,
   })
-  timestamp: string;
+  timestamp?: string;
 }

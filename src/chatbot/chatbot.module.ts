@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
+import { ChatbotController } from './controllers/chatbot.controller';
 import { CurrencyTestController } from './controllers/currency-test.controller';
 import { ProductTestController } from './controllers/product-test.controller';
+import { LLMService } from './services/llm.service';
 import { OpenExchangeRatesService } from './infrastructure/open-exchange-rates.service';
 import { CSVProductRepository } from './infrastructure/csv-product.repository';
 
@@ -19,8 +21,13 @@ import { CSVProductRepository } from './infrastructure/csv-product.repository';
     }),
     ConfigModule,
   ],
-  controllers: [CurrencyTestController, ProductTestController],
+  controllers: [
+    ChatbotController,
+    CurrencyTestController,
+    ProductTestController,
+  ],
   providers: [
+    LLMService,
     OpenExchangeRatesService,
     CSVProductRepository,
     // Abstract interfaces to concrete implementations
@@ -32,12 +39,18 @@ import { CSVProductRepository } from './infrastructure/csv-product.repository';
       provide: 'IProductRepository',
       useClass: CSVProductRepository,
     },
+    {
+      provide: 'ILLMService',
+      useClass: LLMService,
+    },
   ],
   exports: [
+    LLMService,
     OpenExchangeRatesService,
     CSVProductRepository,
     'ICurrencyService',
     'IProductRepository',
+    'ILLMService',
   ],
 })
 export class ChatbotModule {}
