@@ -104,7 +104,9 @@ export function validateConfig(): AppConfig {
       version: process.env.API_VERSION || 'v1',
     },
     data: {
-      productsPath: process.env.PRODUCTS_CSV_PATH || 'data/products_list.csv',
+      productsPath:
+        process.env.PRODUCTS_CSV_PATH ||
+        'data/Full Stack Test products_list.csv',
     },
   };
 }
