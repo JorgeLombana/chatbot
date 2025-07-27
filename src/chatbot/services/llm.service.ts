@@ -25,7 +25,7 @@ export class LLMService implements ILLMService {
   private readonly logger = new Logger(LLMService.name);
   private readonly openai: OpenAI;
   private readonly model = 'gpt-3.5-turbo';
-  private readonly maxTokens = 800; // Increased from 500 to allow longer responses
+  private readonly maxTokens = 800;
   private readonly temperature = 0.7;
 
   constructor(
@@ -91,36 +91,15 @@ export class LLMService implements ILLMService {
         }
 
         // Step 4: Make second call to OpenAI to generate final response
-        console.log(
-          '🔍 OPENAI DEBUG - Making second call with tool results...',
-        );
-        console.log('🔍 OPENAI DEBUG - Messages count:', messages.length);
-        console.log(
-          '🔍 OPENAI DEBUG - Last message (tool result):',
-          messages[messages.length - 1],
-        );
-
         const finalChoice = await this.callOpenAI(messages);
-
-        console.log('🔍 OPENAI DEBUG - Final choice received:', {
-          content: finalChoice.content,
-          contentLength: finalChoice.content?.length || 0,
-          role: finalChoice.role,
-        });
 
         // Check if we got a proper response
         const finalResponse = finalChoice.content;
         if (!finalResponse || finalResponse.trim().length === 0) {
-          console.log('🔍 OPENAI DEBUG - Empty or null response from OpenAI!');
-
           // Fallback response based on tool results
           const successfulTools = toolResults.filter((r) => r.success);
           if (successfulTools.length > 0) {
             const toolType = successfulTools[0].toolName;
-            console.log(
-              '🔍 OPENAI DEBUG - Generating fallback response for tool:',
-              toolType,
-            );
 
             if (toolType === 'searchProducts') {
               return {
@@ -133,7 +112,7 @@ export class LLMService implements ILLMService {
             } else if (toolType === 'convertCurrencies') {
               return {
                 response:
-                  'I was able to convert the currency, but encountered an issue formatting the response. Please try your request again.',
+                  'I was able to convert the currency, but encountered an issue formatting the response. Please try again.',
                 conversationId,
                 toolUsed: toolType,
                 finishReason: 'tool_calls' as const,
@@ -141,8 +120,6 @@ export class LLMService implements ILLMService {
             }
           }
         }
-
-        console.log('🔍 OPENAI DEBUG - Successfully generated final response');
 
         return {
           response:
@@ -258,7 +235,7 @@ export class LLMService implements ILLMService {
     const { name: toolName, arguments: args } = func;
 
     try {
-      this.logger.log(`Executing tool: ${toolName} with args: ${args}`);
+      this.logger.log(`Executing tool: ${toolName}`);
 
       const parsedArgs = JSON.parse(args) as Record<string, unknown>;
 
@@ -342,24 +319,14 @@ export class LLMService implements ILLMService {
         offset: 0,
       };
 
-      // 🔍 DEBUG: Log search criteria
-      console.log('🔍 SEARCH DEBUG - Criteria:', criteria);
-
       const result = await this.productRepository.searchProducts(criteria);
-
-      // 🔍 DEBUG: Log search results
-      console.log('🔍 SEARCH DEBUG - Found products:', result.products.length);
-      console.log('🔍 SEARCH DEBUG - Total available:', result.total);
-      console.log(
-        '🔍 SEARCH DEBUG - Product titles:',
-        result.products.map((p) => p.displayTitle),
-      );
 
       const products = result.products.map((product) => ({
         displayTitle: product.displayTitle,
         productType: product.productType,
         price: product.price,
         hasDiscount: product.hasDiscount(),
+        numericPrice: product.getNumericPrice(),
         hasVariants: product.hasVariants(),
         url: product.url,
         summary: product.getSummary(),
@@ -369,7 +336,7 @@ export class LLMService implements ILLMService {
         `Found ${products.length} products for search: "${args.query as string}"`,
       );
 
-      const toolResult = {
+      return {
         toolCallId,
         toolName,
         success: true,
@@ -379,17 +346,9 @@ export class LLMService implements ILLMService {
           searchCriteria: criteria,
         },
       };
-
-      // 🔍 DEBUG: Log tool result
-      console.log('🔍 TOOL RESULT DEBUG:', JSON.stringify(toolResult, null, 2));
-
-      return toolResult;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Product search failed';
-
-      // 🔍 DEBUG: Log tool error
-      console.log('🔍 TOOL ERROR DEBUG:', errorMessage);
 
       return {
         toolCallId,
@@ -528,19 +487,6 @@ RESPONSE FORMATTING RULES:
 - Format prices clearly with currency
 - Include product links when available
 - Be enthusiastic and helpful about gift suggestions
-
-EXAMPLES OF GOOD RESPONSES:
-"I found 2 great gift options for your dad:
-
-1. **iPhone 12** - Technology
-   - Price: $900.00 USD (On Sale!)
-   - Perfect for staying connected and tech-savvy dads
-   
-2. **Apple Watch SE** - Technology  
-   - Price: $180.00 USD
-   - Great for fitness tracking and notifications
-
-Both are excellent choices that most dads would love!"
 
 Remember: Always be positive, helpful, and provide complete information from the search results. For gifts, focus on popular, practical items that make great presents.`,
     };

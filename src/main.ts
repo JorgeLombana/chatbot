@@ -65,14 +65,6 @@ async function bootstrap() {
           'AI-powered chatbot with product search and currency conversion',
         )
         .setVersion('1.0')
-        .addTag(
-          'Currency Service Tests',
-          'Test endpoints for currency conversion service',
-        )
-        .addTag(
-          'Product Repository Tests',
-          'Test endpoints for product search functionality',
-        )
         .addServer(`http://localhost:${config.port}`, 'Development server')
         .build();
 
@@ -101,10 +93,10 @@ async function bootstrap() {
     );
     logger.log(`📖 Swagger docs: http://localhost:${config.port}/api/docs`);
     logger.log(
-      `💱 Currency health: http://localhost:${config.port}/api/test/currency/health`,
+      `🤖 Chatbot API: http://localhost:${config.port}/api/chatbot/chat`,
     );
     logger.log(
-      `📦 Products health: http://localhost:${config.port}/api/test/products/health`,
+      `❤️ Health check: http://localhost:${config.port}/api/chatbot/health`,
     );
     logger.log(`🔒 Security features: Helmet, CORS, Rate Limiting enabled`);
     logger.log(`🌍 Environment: ${config.nodeEnv}`);
