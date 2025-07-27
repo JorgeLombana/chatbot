@@ -1,16 +1,19 @@
 {
-  "material-icon-theme.folders.associations": {
-    "controllers": "nest-controller",
-    "services": "nest-service",
-    "modules": "nest-module",
-    "guards": "security",
-    "interceptors": "tools"
-  },
   "material-icon-theme.files.associations": {
     "*.controller.ts": "nest-controller",
     "*.service.ts": "nest-service",
     "*.module.ts": "nest-module",
     "*.guard.ts": "security",
-    "*.interceptor.ts": "tools"
-  }
+    "*.interceptor.ts": "tools",
+    "*.dto.ts": "typescript",
+    "*.entity.ts": "class"
+  },
+  "material-icon-theme.folders.associations": {
+    "modules": "nest-module",
+    "guards": "security",
+    "interceptors": "tools",
+    "dto": "typescript",
+    "entities": "class"
+  },
+  "material-icon-theme.folders.theme": "specific"
 }

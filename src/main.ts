@@ -18,6 +18,9 @@ async function bootstrap() {
 
     const app = await NestFactory.create(AppModule);
 
+    app.setGlobalPrefix('api');
+    logger.log('Global API prefix set to: /api');
+
     app.use(
       helmet({
         contentSecurityPolicy: {
@@ -30,7 +33,6 @@ async function bootstrap() {
         },
       }),
     );
-    logger.log('Security headers (Helmet) configured');
 
     const allowedOrigins = (
       process.env.ALLOWED_ORIGINS?.trim() || 'http://localhost:3000'
@@ -45,7 +47,6 @@ async function bootstrap() {
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
     });
-    logger.log(`CORS configured for origins: ${allowedOrigins.join(', ')}`);
 
     app.useGlobalPipes(
       new ValidationPipe({
@@ -53,48 +54,58 @@ async function bootstrap() {
         whitelist: true,
         forbidNonWhitelisted: true,
         disableErrorMessages: config.nodeEnv === NodeEnvironment.PRODUCTION,
-        transformOptions: {
-          enableImplicitConversion: true,
-        },
+        transformOptions: { enableImplicitConversion: true },
       }),
     );
-    logger.log('Global validation pipe configured');
 
-    // Swagger documentation - disabled in production
     if (config.nodeEnv !== NodeEnvironment.PRODUCTION) {
       const swaggerConfig = new DocumentBuilder()
         .setTitle('Chatbot API')
         .setDescription(
-          'API for chatbot with tool integration (product search and currency conversion)',
+          'AI-powered chatbot with product search and currency conversion',
         )
         .setVersion('1.0')
-        .addTag('chatbot', 'Chatbot endpoints')
+        .addTag(
+          'Currency Service Tests',
+          'Test endpoints for currency conversion service',
+        )
+        .addTag(
+          'Product Repository Tests',
+          'Test endpoints for product search functionality',
+        )
         .addServer(`http://localhost:${config.port}`, 'Development server')
         .build();
 
       const document = SwaggerModule.createDocument(app, swaggerConfig);
-      SwaggerModule.setup(`${config.api.prefix}/docs`, app, document, {
+      SwaggerModule.setup('api/docs', app, document, {
         swaggerOptions: {
           persistAuthorization: true,
+          tagsSorter: 'alpha',
+          operationsSorter: 'alpha',
         },
       });
 
       logger.log(
-        `Swagger documentation available at: http://localhost:${config.port}/${config.api.prefix}/docs`,
+        `Swagger documentation available at: http://localhost:${config.port}/api/docs`,
       );
     } else {
       logger.log('Swagger documentation disabled in production mode');
     }
 
-    app.setGlobalPrefix(config.api.prefix);
-    logger.log(`Global API prefix set to: /${config.api.prefix}`);
-
     app.enableShutdownHooks();
-    logger.log('Graceful shutdown hooks enabled');
-
     await app.listen(config.port);
 
     logger.log(`🚀 Application successfully started on port ${config.port}`);
+    logger.log(
+      `📚 API endpoints available at: http://localhost:${config.port}/api`,
+    );
+    logger.log(`📖 Swagger docs: http://localhost:${config.port}/api/docs`);
+    logger.log(
+      `💱 Currency health: http://localhost:${config.port}/api/test/currency/health`,
+    );
+    logger.log(
+      `📦 Products health: http://localhost:${config.port}/api/test/products/health`,
+    );
     logger.log(`🔒 Security features: Helmet, CORS, Rate Limiting enabled`);
     logger.log(`🌍 Environment: ${config.nodeEnv}`);
   } catch (error) {

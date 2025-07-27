@@ -84,8 +84,11 @@ export function validateConfig(): AppConfig {
   }
 
   const exchangeRatesApiKey = process.env.EXCHANGE_RATES_API_KEY!;
-  if (exchangeRatesApiKey.length < 16) {
-    throw new Error('EXCHANGE_RATES_API_KEY appears to be invalid (too short)');
+  // Open Exchange Rates API keys are typically 32 characters long
+  if (exchangeRatesApiKey.length < 32) {
+    throw new Error(
+      'EXCHANGE_RATES_API_KEY appears to be invalid (should be 32 characters for Open Exchange Rates)',
+    );
   }
 
   return {
@@ -104,7 +107,9 @@ export function validateConfig(): AppConfig {
       version: process.env.API_VERSION || 'v1',
     },
     data: {
-      productsPath: process.env.PRODUCTS_CSV_PATH || 'data/products_list.csv',
+      productsPath:
+        process.env.PRODUCTS_CSV_PATH ||
+        'data/Full Stack Test products_list.csv',
     },
   };
 }

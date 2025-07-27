@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ChatbotModule } from './chatbot/chatbot.module';
 import configuration, { validate } from './shared/config/configuration';
 import {
   HttpExceptionFilter,
@@ -23,6 +25,10 @@ import {
       validate,
       envFilePath: '.env',
     }),
+    HttpModule.register({
+      timeout: 10000,
+      maxRedirects: 3,
+    }),
     ThrottlerModule.forRoot([
       {
         name: 'short',
@@ -40,6 +46,7 @@ import {
         limit: 100,
       },
     ]),
+    ChatbotModule,
   ],
   controllers: [AppController],
   providers: [
